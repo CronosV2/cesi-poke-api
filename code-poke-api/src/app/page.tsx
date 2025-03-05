@@ -17,11 +17,13 @@ interface Pokemon {
 export default function Home() {
   const [pokemon, setPokemon] = useState<Pokemon | null>(null);
   const [error, setError] = useState<string>('');
+  const [id, setId] = useState<number>(1);
+  const [searchId, setSearchId] = useState<string>('1');
 
   useEffect(() => {
     const fetchPokemon = async () => {
       try {
-        const response = await fetch('https://pokeapi.co/api/v2/pokemon/10');
+        const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
         if (!response.ok) {
           throw new Error('Erreur réseau');
         }
@@ -34,10 +36,27 @@ export default function Home() {
     };
 
     fetchPokemon();
-  }, []);
+  }, [id]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const newId = parseInt(searchId);
+    if (!isNaN(newId)) {
+      setId(newId);
+    }
+  };
 
   return (
     <main className="p-8">
+      <form onSubmit={handleSearch} className="">
+        <input 
+          type="number" 
+          value={searchId} 
+          onChange={(e) => setSearchId(e.target.value)} 
+          placeholder="Coucou" 
+        />
+        <button type="submit">Rechercher</button>
+      </form>
       {error && <p className="text-red-500">{error}</p>}
       {pokemon ? (
         <div>
