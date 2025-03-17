@@ -1,7 +1,8 @@
 'use client'; // Important pour utiliser useEffect !
 
 import { useEffect, useState } from 'react';
-
+import { useRouter } from 'next/navigation';
+import { typeColors, PokemonType } from '@/utils/color';
 interface Pokemon {
   name: string;
   types: {
@@ -12,9 +13,11 @@ interface Pokemon {
   sprites: {
     front_default: string;
   };
+  id: number;
 }
 
 export default function Home() {
+  const router = useRouter();
   const [pokemon, setPokemon] = useState<Pokemon | null>(null);
   const [error, setError] = useState<string>('');
   const [id, setId] = useState<number>(1);
@@ -46,23 +49,42 @@ export default function Home() {
     }
   };
 
+  const handlePokemonClick = () => {
+    if (pokemon) {
+      router.push(`/pokemon/${pokemon.id}`);
+    }
+  };
+
   return (
     <main className="p-8">
       <form onSubmit={handleSearch} className="">
-        <input 
+        <input className='bg-blue-500 border-1 border-black rounded-md p-2'
           type="number" 
           value={searchId} 
           onChange={(e) => setSearchId(e.target.value)} 
-          placeholder="Coucou" 
+          placeholder="Chiffre ici" 
         />
-        <button type="submit">Rechercher</button>
+        <button type="submit" className='bg-white border-1 border-black rounded-md p-2 m-3'>Rechercher</button>
       </form>
       {error && <p className="text-red-500">{error}</p>}
       {pokemon ? (
         <div>
           <h1 className="text-2xl font-bold">{pokemon.name}</h1>
-          <img src={pokemon.sprites.front_default} alt={pokemon.name} />
-          <p>Types: {pokemon.types.map(t => t.type.name).join(', ')}</p>
+          <img 
+            src={pokemon.sprites.front_default} 
+            alt={pokemon.name}
+            onClick={handlePokemonClick}
+            className="cursor-pointer hover:opacity-80" 
+          />
+        <p className="mt-4">{pokemon.types.map(t => (
+          <span
+            key={t.type.name}
+            className="px-3 py-1 rounded-full text-white mr-2"
+            style={{ backgroundColor: typeColors[t.type.name as keyof typeof typeColors] }}
+          >
+          {t.type.name}
+        </span>
+        ))}</p>
         </div>
       ) : (
         <p>Chargement...</p>
