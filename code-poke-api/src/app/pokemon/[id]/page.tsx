@@ -1,11 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { typeColors, PokemonType } from '@/utils/color';
-import Image from 'next/image';
-import toast from 'react-hot-toast';
-import { getPokemon } from '@/services/pokemonService';
 
 interface Pokemon {
   name: string;
@@ -16,21 +13,17 @@ interface Pokemon {
   }[];
   sprites: {
     front_default: string;
-    other: {
-      'official-artwork': {
-        front_default: string;
-      };
-    };
   };
   weight: number;
   height: number; 
 }
 
-export default function PokemonDetail() {
+
+export default function PokemonDetail({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const params = useParams();
   const [pokemon, setPokemon] = useState<Pokemon | null>(null);
-  const currentId = params?.id ? parseInt(params.id as string) : 1;
+  const [error, setError] = useState<string>('');
+  const [id, setId] = useState<number>(parseInt(params.id));
 
   const navigateToPokemon = (newId: number) => {
     if (newId >= 1 && newId <= 151) {  
@@ -41,33 +34,38 @@ export default function PokemonDetail() {
   useEffect(() => {
     const fetchPokemon = async () => {
       try {
-        const data = await getPokemon(currentId.toString());
+        const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
+        if (!response.ok) {
+          throw new Error('Erreur réseau');
+        }
+        const data = await response.json();
         setPokemon(data);
       } catch (err) {
-        toast.error('Erreur lors de la récupération du Pokémon');
+        setError('Erreur lors de la récupération du Pokémon');
+        console.error(err);
       }
     };
 
     fetchPokemon();
-  }, [currentId]);
+  }, [id]);
 
   return (
     <main className="">
       <div className="shadow-lg" style={{ backgroundColor: typeColors[pokemon?.types[0].type.name as keyof typeof typeColors] }}>
         <div className="flex items-center justify-between p-6">
           <div className="flex items-center gap-2">
-            <button onClick={() => router.push('/')} className="text-white  text-2xl hover:scale-110 transition-transform">
+            <button onClick={() => router.back()} className="text-white text-2xl">
               ←
             </button>
             <h1 className="text-3xl font-bold text-white capitalize">{pokemon?.name}</h1>
           </div>
-          <span className="text-white font-bold">#{currentId.toString().padStart(3, '0')}</span>
+          <span className="text-white font-bold">#{params.id.padStart(3, '0')}</span>
         </div>
 
         {pokemon ? (
           <div className="relative">
             <button 
-              onClick={() => navigateToPokemon(currentId - 1)}
+              onClick={() => navigateToPokemon(id - 1)}
               className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white text-4xl z-20 hover:scale-110 transition-transform"
               style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}
             >
@@ -75,7 +73,7 @@ export default function PokemonDetail() {
             </button>
             
             <button 
-              onClick={() => navigateToPokemon(currentId + 1)}
+              onClick={() => navigateToPokemon(id + 1)}
               className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white text-4xl z-20 hover:scale-110 transition-transform"
               style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}
             >
@@ -83,12 +81,10 @@ export default function PokemonDetail() {
             </button>
 
             <div className="relative z-10">
-              <Image
-              height={128}
-              width={128}
-                src={pokemon.sprites.other['official-artwork'].front_default} 
+              <img 
+                src={pokemon.sprites.front_default} 
                 alt={pokemon.name}
-                className="mx-auto"
+                className="w-128 h-128 mx-auto"
               />
             </div>
 
