@@ -105,7 +105,7 @@ export default function PokemonDetail() {
             </button>
             <h1 className="text-3xl font-bold text-white capitalize">{pokemon?.name}</h1>
           </div>
-          <span className="text-white font-bold">#{currentId.toString().padStart(3, '0')}</span>
+          <span className="text-white font-extrabold">#{currentId.toString().padStart(3, '0')}</span>
         </div>
 
         {pokemon ? (
