@@ -32,6 +32,7 @@ export default function Home() {
   const [id, setId] = useState<number>();
   const [searchId, setSearchId] = useState<string>('id');
   const [pokemons, setPokemons] = useState<Pokemon[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const fetchPokemons = async () => {
@@ -56,9 +57,9 @@ export default function Home() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    const newId = parseInt(searchId);
-    if (!isNaN(newId)) {
-      setId(newId);
+    const newId = parseInt(searchTerm);
+    if (!isNaN(newId) && newId >= 1 && newId <= 151) {
+      router.push(`/pokemon/${newId}`);
     }
   };
 
@@ -74,13 +75,15 @@ export default function Home() {
         <img src={littlepokeball.src} alt="littlepokeball" className="w-10 h-10" />
         <h1 className="text-6xl font-extrabold text-white">Pokédex</h1>
       </div>
-      <form onSubmit={handleSearch} className="relative">
+      <form onSubmit={handleSearch} className="relative mb-8">
         <input 
           className='bg-white border-1 border-black rounded-full p-4 font-extralight pl-12 w-64'
           type="number" 
-          value={searchId} 
-          onChange={(e) => setSearchId(e.target.value)} 
-          placeholder="Search" 
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Enter Pokémon ID (1-151)" 
+          min="1"
+          max="151"
         />
         <img 
           src={search.src} 
