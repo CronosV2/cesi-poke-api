@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { typeColors, PokemonType } from '@/utils/color';
 import search from '@/assets/search.svg';
 import littlepokeball from '@/assets/littlepokeball.svg';
-
+import axios from 'axios';
 interface Pokemon {
   name: string;
   types: {
@@ -29,11 +29,8 @@ export default function Home() {
   useEffect(() => {
     const fetchPokemon = async () => {
       try {
-        const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
-        if (!response.ok) {
-          throw new Error('Erreur réseau');
-        }
-        const data = await response.json();
+        const response = await axios.get(`https://pokeapi.co/api/v2/pokemon/${id}`);
+        const data = await response.data;
         setPokemon(data);
       } catch (err) {
         setError('Erreur lors de la récupération du Pokémon');
