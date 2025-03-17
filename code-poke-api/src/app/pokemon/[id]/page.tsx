@@ -25,6 +25,11 @@ export default function PokemonDetail({ params }: { params: { id: string } }) {
   const [error, setError] = useState<string>('');
   const [id, setId] = useState<number>(parseInt(params.id));
 
+  const navigateToPokemon = (newId: number) => {
+    if (newId >= 1 && newId <= 151) {  
+      router.push(`/pokemon/${newId}`);
+    }
+  };
 
   useEffect(() => {
     const fetchPokemon = async () => {
@@ -59,6 +64,22 @@ export default function PokemonDetail({ params }: { params: { id: string } }) {
 
         {pokemon ? (
           <div className="relative">
+            <button 
+              onClick={() => navigateToPokemon(id - 1)}
+              className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white text-4xl z-20 hover:scale-110 transition-transform"
+              style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}
+            >
+              ←
+            </button>
+            
+            <button 
+              onClick={() => navigateToPokemon(id + 1)}
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white text-4xl z-20 hover:scale-110 transition-transform"
+              style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}
+            >
+              →
+            </button>
+
             <div className="relative z-10">
               <img 
                 src={pokemon.sprites.front_default} 
