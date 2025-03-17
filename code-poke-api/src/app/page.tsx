@@ -1,4 +1,4 @@
-'use client'; // Important pour utiliser useEffect !
+'use client'; 
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -15,31 +15,44 @@ interface Pokemon {
   }[];
   sprites: {
     front_default: string;
+    other: {
+      'official-artwork': {
+        front_default: string;
+      };
+    };
   };
   id: number;
 }
 
+
 export default function Home() {
   const router = useRouter();
-  const [pokemon, setPokemon] = useState<Pokemon | null>(null);
+  const [pokemon] = useState<Pokemon | null>(null);
   const [error, setError] = useState<string>('');
-  const [id, setId] = useState<number>(1);
-  const [searchId, setSearchId] = useState<string>('1');
+  const [id, setId] = useState<number>();
+  const [searchId, setSearchId] = useState<string>('id');
+  const [pokemons, setPokemons] = useState<Pokemon[]>([]);
 
   useEffect(() => {
-    const fetchPokemon = async () => {
+    const fetchPokemons = async () => {
       try {
-        const response = await axios.get(`https://pokeapi.co/api/v2/pokemon/${id}`);
-        const data = await response.data;
-        setPokemon(data);
+        const response = await axios.get('https://pokeapi.co/api/v2/pokemon?limit151');
+        const results = response.data.results;
+        const pokemonDetails = await Promise.all(
+          results.map(async (pokemon: { url: string }) => {
+            const detail = await axios.get(pokemon.url);
+            return detail.data;
+          })
+        );
+        
+        setPokemons(pokemonDetails);
       } catch (err) {
-        setError('Erreur lors de la récupération du Pokémon');
-        console.error(err);
+        setError('Erreur lors de la récupération des Pokémon');
       }
     };
 
-    fetchPokemon();
-  }, [id]);
+    fetchPokemons();
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,24 +89,29 @@ export default function Home() {
         />
       </form>
       {error && <p className="text-yellow-500">{error}</p>}
-      {pokemon ? (
+      {pokemons.length > 0 ? (
         <div>
-          <h1 className="text-2xl font-bold">{pokemon.name}</h1>
-          <img 
-            src={pokemon.sprites.front_default} 
-            alt={pokemon.name}
-            onClick={handlePokemonClick}
-            className="cursor-pointer hover:opacity-80" 
-          />
-        <p className="mt-4">{pokemon.types.map(t => (
-          <span
-            key={t.type.name}
-            className="px-3 py-1 rounded-full text-white mr-2"
-            style={{ backgroundColor: typeColors[t.type.name as keyof typeof typeColors] }}
-          >
-          {t.type.name}
-        </span>
-        ))}</p>
+          {pokemons.map((pokemon) => (
+            <div className=' gap-4' key={pokemon.id} onClick={() => router.push(`/pokemon/${pokemon.id}`)}>
+              <h2>{pokemon.name}</h2>
+              <img 
+                src={pokemon.sprites.other['official-artwork'].front_default}
+                alt={pokemon.name}
+                className="cursor-pointer hover:opacity-80"
+              />
+              <div>
+                {pokemon.types.map(t => (
+                  <span
+                    key={t.type.name}
+                    className="px-3 py-1 rounded-full text-white mr-2"
+                    style={{ backgroundColor: typeColors[t.type.name as keyof typeof typeColors] }}
+                  >
+                    {t.type.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       ) : (
         <p>Chargement...</p>
