@@ -14,7 +14,7 @@ export default function RootLayout({
   return (
 
     <html lang="fr">
-      <body className="antialiased" style={{ backgroundColor: '#ff0000' }}>
+      <body className="antialiased" style={{ backgroundColor: '#DC0A2D' }}>
       <div>
         <Toaster />
       </div>
