@@ -79,7 +79,6 @@ export default function PokemonDetail() {
           const response = await axios.get(pokemon.species.url);
           const speciesData: PokemonSpecies = response.data;
           
-          // Trouve la première description en français
           const EnglishDescription = speciesData.flavor_text_entries.find(
             entry => entry.language.name === 'en'
           );
