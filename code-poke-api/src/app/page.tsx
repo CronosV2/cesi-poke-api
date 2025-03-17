@@ -3,6 +3,9 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { typeColors, PokemonType } from '@/utils/color';
+import search from '@/assets/search.svg';
+import littlepokeball from '@/assets/littlepokeball.svg';
+
 interface Pokemon {
   name: string;
   types: {
@@ -57,16 +60,25 @@ export default function Home() {
 
   return (
     <main className="p-8">
-      <form onSubmit={handleSearch} className="">
-        <input className='bg-blue-500 border-1 border-black rounded-md p-2'
+      <div className="flex items-center gap-4 mb-4">
+        <img src={littlepokeball.src} alt="littlepokeball" className="w-10 h-10" />
+        <h1 className="text-6xl font-extrabold text-white">Pokédex</h1>
+      </div>
+      <form onSubmit={handleSearch} className="relative">
+        <input 
+          className='bg-white border-1 border-black rounded-full p-4 font-extralight pl-12 w-64'
           type="number" 
           value={searchId} 
           onChange={(e) => setSearchId(e.target.value)} 
-          placeholder="Chiffre ici" 
+          placeholder="Search" 
         />
-        <button type="submit" className='bg-white border-1 border-black rounded-md p-2 m-3'>Rechercher</button>
+        <img 
+          src={search.src} 
+          alt="search" 
+          className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5"
+        />
       </form>
-      {error && <p className="text-red-500">{error}</p>}
+      {error && <p className="text-yellow-500">{error}</p>}
       {pokemon ? (
         <div>
           <h1 className="text-2xl font-bold">{pokemon.name}</h1>
